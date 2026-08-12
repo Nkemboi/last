@@ -3025,13 +3025,13 @@ footer.container {
       rgba(241,238,231,.5) 0%,
       rgba(241,238,231,.5) 42%,
       rgba(241,238,231,.48) 25%,
-      rgba(241,238,231,.33) 100%
+      rgba(241,238,231,.33) 10%
     ),
     linear-gradient(
       180deg,
       rgba(241,238,231,.30) 40%,
       rgba(241,238,231,.20) 20%,
-      rgba(241,238,231,.30) 100%
+      rgba(241,238,231,.30) 10%
     );
 }
 
@@ -3068,16 +3068,16 @@ footer.container {
     min-width: 100%;
     height: 100%;
 
-    opacity: .80;
+    opacity: .40;
   }
 
   #studio .studio-video-overlay {
     background:
       linear-gradient(
         180deg,
-        rgba(241,238,231,.92) 40%,
-        rgba(241,238,231,.62) 45%,
-        rgba(241,238,231,.94) 100%
+        rgba(241,238,231,.30) 40%,
+        rgba(241,238,231,.22) 45%,
+        rgba(241,238,231,.54) 100%
       );
   }
 }
