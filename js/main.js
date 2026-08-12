@@ -217,3 +217,286 @@ function toggleAmbientAudio() {
 
 soundToggle?.addEventListener('click', toggleAmbientAudio);
 
+
+/* =========================================================
+   AXIS MEDIA — HERO CASE STUDY BUTTON FIX
+   ========================================================= */
+
+(function () {
+  "use strict";
+
+  const CASE_IDS = [
+    "case-kidosho",
+    "case-mboga",
+    "case-siomo"
+  ];
+
+  /* -----------------------------------------
+     Find case study
+  ----------------------------------------- */
+
+  function getCaseStudy(id) {
+    return document.getElementById(id);
+  }
+
+  /* -----------------------------------------
+     Open case study overlay
+  ----------------------------------------- */
+
+  function openCaseStudy(id, updateUrl = true) {
+    const target = getCaseStudy(id);
+
+    if (!target) {
+      console.warn("Axis Media: Case study not found:", id);
+      return;
+    }
+
+    // Close any currently open case study
+    document.querySelectorAll(".case-view").forEach((caseView) => {
+      caseView.classList.remove("active");
+      caseView.setAttribute("aria-hidden", "true");
+    });
+
+    // Open requested case study
+    target.classList.add("active");
+    target.setAttribute("aria-hidden", "false");
+
+    // Prevent background page scrolling
+    document.body.classList.add("case-open");
+    document.documentElement.classList.add("case-open");
+
+    // Start overlay from top
+    target.scrollTop = 0;
+
+    // Update browser URL
+    if (updateUrl) {
+      history.pushState(
+        { caseStudy: id },
+        "",
+        "#" + id
+      );
+    }
+  }
+
+  /* -----------------------------------------
+     Close case study
+  ----------------------------------------- */
+
+  function closeCaseStudy(updateUrl = true) {
+    document.querySelectorAll(".case-view").forEach((caseView) => {
+      caseView.classList.remove("active");
+      caseView.setAttribute("aria-hidden", "true");
+    });
+
+    document.body.classList.remove("case-open");
+    document.documentElement.classList.remove("case-open");
+
+    if (
+      updateUrl &&
+      window.location.hash.startsWith("#case-")
+    ) {
+      history.pushState(
+        {},
+        "",
+        window.location.pathname + window.location.search
+      );
+    }
+  }
+
+  /* -----------------------------------------
+     HERO SLIDER BUTTONS
+  ----------------------------------------- */
+
+  function setupHeroCaseStudyButtons() {
+    const slides = document.querySelectorAll(".hero-slide");
+
+    slides.forEach((slide, index) => {
+
+      /*
+       * Priority:
+       * 1. data-case on slide
+       * 2. data-case on button
+       * 3. fallback based on slide position
+       */
+
+      const button = slide.querySelector(
+        ".hero-case-link, .hero-case-btn, [data-hero-case], a[href*='case-']"
+      );
+
+      if (!button) return;
+
+      const caseId =
+        slide.dataset.case ||
+        button.dataset.case ||
+        CASE_IDS[index];
+
+      if (!caseId) return;
+
+      // Force correct target
+      button.dataset.case = caseId;
+      button.setAttribute("href", "#" + caseId);
+
+      // Remove previous inline handlers if necessary
+      button.addEventListener("click", function (event) {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        openCaseStudy(caseId);
+
+      });
+    });
+  }
+
+  /* -----------------------------------------
+     GENERIC CASE STUDY LINKS
+  ----------------------------------------- */
+
+  function setupCaseStudyLinks() {
+
+    document.querySelectorAll("[data-case]").forEach((link) => {
+
+      // Hero links are already handled
+      if (link.closest(".hero-slide")) return;
+
+      const caseId = link.dataset.case;
+
+      if (!caseId) return;
+
+      if (!getCaseStudy(caseId)) return;
+
+      link.addEventListener("click", function (event) {
+
+        event.preventDefault();
+
+        openCaseStudy(caseId);
+
+      });
+
+    });
+
+  }
+
+  /* -----------------------------------------
+     CLOSE BUTTONS
+  ----------------------------------------- */
+
+  function setupCloseButtons() {
+
+    document.querySelectorAll(
+      ".case-close, .case-back, [data-close-case]"
+    ).forEach((button) => {
+
+      button.addEventListener("click", function (event) {
+
+        event.preventDefault();
+
+        closeCaseStudy();
+
+      });
+
+    });
+
+  }
+
+  /* -----------------------------------------
+     ESC KEY
+  ----------------------------------------- */
+
+  function setupKeyboard() {
+
+    document.addEventListener("keydown", function (event) {
+
+      if (event.key === "Escape") {
+        closeCaseStudy();
+      }
+
+    });
+
+  }
+
+  /* -----------------------------------------
+     BROWSER BACK / FORWARD
+  ----------------------------------------- */
+
+  function setupHistory() {
+
+    window.addEventListener("popstate", function () {
+
+      const id = window.location.hash.substring(1);
+
+      if (
+        id.startsWith("case-") &&
+        getCaseStudy(id)
+      ) {
+
+        openCaseStudy(id, false);
+
+      } else {
+
+        closeCaseStudy(false);
+
+      }
+
+    });
+
+  }
+
+  /* -----------------------------------------
+     OPEN CASE FROM URL
+     Example:
+
+     https://axismedia.co.ke/#case-kidosho
+  ----------------------------------------- */
+
+  function handleInitialHash() {
+
+    const id = window.location.hash.substring(1);
+
+    if (
+      id.startsWith("case-") &&
+      getCaseStudy(id)
+    ) {
+
+      requestAnimationFrame(() => {
+        openCaseStudy(id, false);
+      });
+
+    }
+
+  }
+
+  /* -----------------------------------------
+     INITIALIZE
+  ----------------------------------------- */
+
+  function initCaseStudySystem() {
+
+    setupHeroCaseStudyButtons();
+
+    setupCaseStudyLinks();
+
+    setupCloseButtons();
+
+    setupKeyboard();
+
+    setupHistory();
+
+    handleInitialHash();
+
+  }
+
+  if (document.readyState === "loading") {
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      initCaseStudySystem
+    );
+
+  } else {
+
+    initCaseStudySystem();
+
+  }
+
+})();
