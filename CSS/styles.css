@@ -3020,19 +3020,7 @@ footer.container {
   pointer-events: none;
 
   background:
-    linear-gradient(
-      90deg,
-      rgba(241,238,231,.5) 0%,
-      rgba(241,238,231,.5) 42%,
-      rgba(241,238,231,.48) 25%,
-      rgba(241,238,231,.33) 10%
-    ),
-    linear-gradient(
-      180deg,
-      rgba(241,238,231,.30) 40%,
-      rgba(241,238,231,.20) 20%,
-      rgba(241,238,231,.30) 10%
-    );
+    
 }
 
 
@@ -3073,12 +3061,7 @@ footer.container {
 
   #studio .studio-video-overlay {
     background:
-      linear-gradient(
-        180deg,
-        rgba(241,238,231,.30) 40%,
-        rgba(241,238,231,.22) 45%,
-        rgba(241,238,231,.54) 10%
-      );
+      
   }
 }
 
