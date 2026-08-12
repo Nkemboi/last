@@ -3029,7 +3029,7 @@ footer.container {
     ),
     linear-gradient(
       180deg,
-      rgba(241,238,231,.80) 0%,
+      rgba(241,238,231,.80) 40%,
       rgba(241,238,231,.35) 45%,
       rgba(241,238,231,.88) 100%
     );
@@ -3075,7 +3075,7 @@ footer.container {
     background:
       linear-gradient(
         180deg,
-        rgba(241,238,231,.92) 0%,
+        rgba(241,238,231,.92) 40%,
         rgba(241,238,231,.62) 45%,
         rgba(241,238,231,.94) 100%
       );
