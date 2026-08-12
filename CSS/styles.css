@@ -3001,7 +3001,7 @@ footer.container {
 
   transform: translate(-50%, -50%);
 
-  opacity: .55;
+  opacity: .80;
 
   filter:
     saturate(.65)
@@ -3068,7 +3068,7 @@ footer.container {
     min-width: 100%;
     height: 100%;
 
-    opacity: .38;
+    opacity: .80;
   }
 
   #studio .studio-video-overlay {
