@@ -268,13 +268,6 @@ p {
   transform: scale(1.015);
   pointer-events: none;
 }
-.hero::before {
-  display: none !important;
-}
-
-.hero::after {
-  display: none !important;
-}
 
 /* Accent glow */
 .hero::after {
