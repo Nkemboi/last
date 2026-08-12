@@ -3004,8 +3004,8 @@ footer.container {
   opacity: .80;
 
   filter:
-    saturate(.65)
-    contrast(.92);
+    saturate(.30)
+    contrast(.40);
 }
 
 
@@ -3022,16 +3022,16 @@ footer.container {
   background:
     linear-gradient(
       90deg,
-      rgba(241,238,231,.96) 0%,
-      rgba(241,238,231,.82) 42%,
+      rgba(241,238,231,.5) 0%,
+      rgba(241,238,231,.5) 42%,
       rgba(241,238,231,.48) 25%,
-      rgba(241,238,231,.68) 100%
+      rgba(241,238,231,.33) 100%
     ),
     linear-gradient(
       180deg,
-      rgba(241,238,231,.80) 40%,
-      rgba(241,238,231,.35) 20%,
-      rgba(241,238,231,.88) 100%
+      rgba(241,238,231,.30) 40%,
+      rgba(241,238,231,.20) 20%,
+      rgba(241,238,231,.30) 100%
     );
 }
 
