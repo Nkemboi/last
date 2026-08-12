@@ -274,6 +274,7 @@ p {
 
 .hero::after {
   display: none !important;
+}
 
 /* Accent glow */
 .hero::after {
