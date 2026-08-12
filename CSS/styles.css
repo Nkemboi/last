@@ -2890,167 +2890,7 @@ footer.container {
     margin-top: 2rem;
   }
 }
-/* =========================================================
-   STUDIO — LIGHT EDITORIAL THEME
-   ========================================================= */
 
-#studio {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-
-  /* LIGHT OFF-WHITE BASE */
-  background: #f1eee7 !important;
-  color: #11110f !important;
-
-  padding: clamp(7rem, 12vw, 13rem) 0;
-}
-
-
-/* ---------------------------------------------------------
-   BACKGROUND IMAGE
-   --------------------------------------------------------- */
-
-/*
-  Replace the image below with your own image.
-
-  Recommended:
-  /images/studio.jpg
-
-  Or change this to your actual image path.
-*/
-
-#studio::before {
-  content: "";
-
-  position: absolute;
-  inset: 0;
-
-  z-index: -2;
-
-  background-image:
-    url("/images/studio.jpg");
-
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-
-  opacity: .20;
-
-  transform: scale(1.03);
-}
-
-
-/* ---------------------------------------------------------
-   IMAGE OVERLAY
-   --------------------------------------------------------- */
-
-#studio::after {
-  content: "";
-
-  position: absolute;
-  inset: 0;
-
-  z-index: -1;
-
-  background:
-    linear-gradient(
-      90deg,
-      rgba(241,238,231,.97) 0%,
-      rgba(241,238,231,.88) 42%,
-      rgba(241,238,231,.58) 72%,
-      rgba(241,238,231,.72) 100%
-    );
-}
-
-
-/* ---------------------------------------------------------
-   STUDIO CONTAINER
-   --------------------------------------------------------- */
-
-#studio .container {
-  position: relative;
-  z-index: 2;
-}
-
-
-/* ---------------------------------------------------------
-   STUDIO HEADER
-   --------------------------------------------------------- */
-
-#studio .eyebrow {
-  color: #77736b !important;
-}
-
-#studio h2 {
-  color: #11110f !important;
-
-  font-size:
-    clamp(
-      4.5rem,
-      10vw,
-      10rem
-    );
-
-  line-height: .78;
-
-  letter-spacing: -.08em;
-}
-
-
-/* ---------------------------------------------------------
-   STUDIO BODY COPY
-   --------------------------------------------------------- */
-
-#studio p {
-  color: #4d4a44 !important;
-}
-
-
-/* ---------------------------------------------------------
-   STUDIO GRID
-   --------------------------------------------------------- */
-
-.studio-grid {
-  display: grid;
-
-  grid-template-columns:
-    minmax(0, 1.2fr)
-    minmax(280px, .8fr);
-
-  gap: clamp(4rem, 10vw, 10rem);
-
-  align-items: end;
-}
-
-
-/* ---------------------------------------------------------
-   LARGE STATEMENT
-   --------------------------------------------------------- */
-
-.studio-statement {
-  max-width: 850px;
-}
-
-.studio-statement p {
-  max-width: 650px;
-
-  font-size:
-    clamp(
-      1.25rem,
-      2.2vw,
-      2rem
-    );
-
-  line-height: 1.35;
-
-  letter-spacing: -.025em;
-}
-
-
-/* ---------------------------------------------------------
-   STUDIO META
-   --------------------------------------------------------- */
 
 .studio-meta {
   display: grid;
@@ -3116,97 +2956,142 @@ footer.container {
   color: var(--accent);
 
   border-color: var(--accent);
+/* =========================================================
+   STUDIO — VIDEO BACKGROUND
+   ========================================================= */
+
+#studio {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
+  background: #f1eee7 !important;
+  color: #11110f !important;
+
+  padding: clamp(7rem, 12vw, 13rem) 0;
 }
 
 
-/* ---------------------------------------------------------
-   OPTIONAL IMAGE FRAME
-   --------------------------------------------------------- */
+/* VIDEO */
 
-.studio-image {
-  position: relative;
+#studio .studio-video-bg {
+  position: absolute;
+  inset: 0;
 
-  min-height: 520px;
+  z-index: -3;
 
   overflow: hidden;
 
-  border: 1px solid rgba(17,17,15,.15);
+  pointer-events: none;
 }
 
-.studio-image img {
+#studio .studio-video-bg video {
+  position: absolute;
+
+  top: 50%;
+  left: 50%;
+
   width: 100%;
   height: 100%;
 
+  min-width: 100%;
+  min-height: 100%;
+
   object-fit: cover;
 
-  filter: grayscale(.15);
+  transform: translate(-50%, -50%);
 
-  transition:
-    transform 1s cubic-bezier(.2,.8,.2,1);
+  opacity: .55;
+
+  filter:
+    saturate(.65)
+    contrast(.92);
 }
 
-.studio-image:hover img {
-  transform: scale(1.04);
+
+/* LIGHT EDITORIAL OVERLAY */
+
+#studio .studio-video-overlay {
+  position: absolute;
+  inset: 0;
+
+  z-index: -2;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(241,238,231,.96) 0%,
+      rgba(241,238,231,.82) 42%,
+      rgba(241,238,231,.48) 75%,
+      rgba(241,238,231,.68) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(241,238,231,.80) 0%,
+      rgba(241,238,231,.35) 45%,
+      rgba(241,238,231,.88) 100%
+    );
 }
 
 
-/* =========================================================
-   MOBILE
-   ========================================================= */
+/* CONTENT ABOVE VIDEO */
 
-@media (max-width: 800px) {
+#studio .container {
+  position: relative;
+  z-index: 2;
+}
 
-  #studio {
-    padding: 6rem 0 8rem;
+
+/* TYPOGRAPHY */
+
+#studio h2 {
+  color: #11110f !important;
+}
+
+#studio p {
+  color: #4d4a44 !important;
+}
+
+#studio .eyebrow {
+  color: #77736b !important;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+
+  #studio .studio-video-bg video {
+    width: auto;
+    min-width: 100%;
+    height: 100%;
+
+    opacity: .38;
   }
 
-  #studio::before {
-    background-position: center;
-    opacity: .16;
-  }
-
-  #studio::after {
+  #studio .studio-video-overlay {
     background:
       linear-gradient(
         180deg,
-        rgba(241,238,231,.94) 0%,
-        rgba(241,238,231,.78) 55%,
+        rgba(241,238,231,.92) 0%,
+        rgba(241,238,231,.62) 45%,
         rgba(241,238,231,.94) 100%
       );
   }
+}
 
-  .studio-grid {
-    grid-template-columns: 1fr;
 
-    gap: 4rem;
+/* REDUCED MOTION */
+
+@media (prefers-reduced-motion: reduce) {
+
+  #studio .studio-video-bg video {
+    display: none;
   }
 
-  #studio h2 {
-    font-size:
-      clamp(
-        4rem,
-        18vw,
-        7rem
-      );
-  }
-
-  .studio-statement p {
-    font-size: 1.15rem;
-  }
-
-  .studio-image {
-    min-height: 380px;
-  }
-
-  .studio-meta {
-    grid-template-columns: 1fr;
-  }
-
-  .studio-meta-item + .studio-meta-item {
-    padding-left: 0;
-
-    border-left: 0;
-
-    border-top: 1px solid rgba(17,17,15,.18);
+  #studio {
+    background: #f1eee7 !important;
   }
 }
