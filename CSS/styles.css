@@ -714,46 +714,235 @@ section {
 }
 
 /* =========================================================
-   PROCESS
+   PROCESS / DISCOVERY
    ========================================================= */
 
 #process {
-  padding: 10rem 0;
+  position: relative;
+  padding: 10rem 0 11rem;
   border-top: 1px solid var(--line);
+  overflow: hidden;
 }
 
 .process {
   display: grid;
-  grid-template-columns: 35% 1fr;
-  gap: 8vw;
+  grid-template-columns: minmax(260px, .65fr) minmax(0, 1.35fr);
+  gap: clamp(4rem, 9vw, 10rem);
+  align-items: start;
+}
+
+.process-intro {
+  position: sticky;
+  top: 8rem;
+}
+
+.process-intro .eyebrow {
+  display: block;
+  margin-bottom: 1rem;
 }
 
 .process h2 {
-  margin-top: .8rem;
+  max-width: 520px;
+  margin: .5rem 0 0;
+  font-size: clamp(4rem, 7vw, 7rem);
+  line-height: .82;
 }
 
+/* Process list */
+
 .steps {
+  width: 100%;
   border-top: 1px solid var(--line);
 }
 
 .step {
+  position: relative;
+
   display: grid;
-  grid-template-columns: 50px 1fr;
+  grid-template-columns: 70px minmax(0, 1fr);
+
   column-gap: 1.5rem;
-  padding: 2.2rem 0;
+
+  padding: 3rem 0;
+
   border-bottom: 1px solid var(--line);
+
+  transition:
+    padding .45s var(--ease),
+    background .45s ease;
 }
+
+.step::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background: var(--surface);
+
+  transform: scaleY(0);
+  transform-origin: bottom;
+
+  transition: transform .45s var(--ease);
+
+  z-index: -1;
+}
+
+.step:hover {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.step:hover::before {
+  transform: scaleY(1);
+}
+
+/* Numbers */
+
+.step .num {
+  display: block;
+
+  padding-top: .25rem;
+
+  color: var(--accent);
+
+  font-family: "DM Mono", monospace;
+  font-size: .7rem;
+  font-weight: 500;
+  line-height: 1;
+
+  letter-spacing: .08em;
+}
+
+/* Process title */
 
 .step h3 {
-  margin: 0 0 .6rem;
-  font-size: clamp(1.6rem, 3vw, 3rem);
+  margin: 0 0 1rem;
+
+  color: var(--text);
+
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(2.5rem, 4.5vw, 5rem);
+  font-weight: 600;
+  line-height: .85;
+
+  letter-spacing: -.065em;
+
+  transition: color .3s ease;
 }
+
+.step:hover h3 {
+  color: var(--accent);
+}
+
+/* Process description */
 
 .step p {
-  max-width: 620px;
+  max-width: 650px;
+
   margin: 0;
+
+  color: var(--muted);
+
+  font-size: clamp(.95rem, 1.2vw, 1.1rem);
+  line-height: 1.65;
 }
 
+/* =========================================================
+   DISCOVER EMPHASIS
+   ========================================================= */
+
+.step:first-child {
+  padding-top: 3.5rem;
+}
+
+.step:first-child h3 {
+  font-size: clamp(3rem, 5vw, 5.5rem);
+}
+
+.step:first-child .num {
+  color: var(--accent);
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  #process {
+    padding: 8rem 0;
+  }
+
+  .process {
+    grid-template-columns: 1fr;
+    gap: 4rem;
+  }
+
+  .process-intro {
+    position: static;
+  }
+
+  .process h2 {
+    max-width: 700px;
+  }
+
+  .step {
+    grid-template-columns: 55px minmax(0, 1fr);
+  }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  #process {
+    padding: 6rem 0;
+  }
+
+  .process {
+    display: block;
+  }
+
+  .process-intro {
+    margin-bottom: 3rem;
+  }
+
+  .process h2 {
+    font-size: clamp(3.8rem, 17vw, 6rem);
+  }
+
+  .step,
+  .step:first-child {
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: .8rem;
+
+    padding: 2.2rem 0;
+  }
+
+  .step:hover {
+    padding-left: .8rem;
+    padding-right: .8rem;
+  }
+
+  .step .num {
+    padding-top: .2rem;
+    font-size: .62rem;
+  }
+
+  .step h3,
+  .step:first-child h3 {
+    font-size: clamp(2.5rem, 12vw, 4rem);
+    line-height: .85;
+  }
+
+  .step p {
+    font-size: .88rem;
+    line-height: 1.6;
+  }
+}
 /* =========================================================
    CONTACT
    ========================================================= */
