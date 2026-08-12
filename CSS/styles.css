@@ -3418,3 +3418,451 @@ video {
 }
 
 /* Cache-busting marker: Axis Media CSS recovery 2026-08-12 */
+/* =========================================================
+   THOUGHTS
+   ========================================================= */
+
+.thoughts-section {
+  position: relative;
+  padding: 10rem 0 12rem;
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.thoughts-header {
+  display: grid;
+  grid-template-columns: 1fr .55fr;
+  gap: 6vw;
+  align-items: end;
+  margin-bottom: 5rem;
+}
+
+.thoughts-header h2 {
+  max-width: 900px;
+  margin: .8rem 0 0;
+}
+
+.thoughts-intro {
+  padding-bottom: .4rem;
+}
+
+.thoughts-intro p {
+  max-width: 430px;
+  margin: 0 0 2rem;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.thoughts-note {
+  color: #77736d;
+  font: 500 .62rem/1 "DM Mono", monospace;
+  letter-spacing: .1em;
+}
+
+
+/* =========================================================
+   THOUGHT GRID
+   ========================================================= */
+
+.thoughts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.thought-card {
+  position: relative;
+  min-height: 680px;
+  overflow: hidden;
+  isolation: isolate;
+  background: #151515;
+  cursor: pointer;
+}
+
+.thought-image {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+
+  background-position: center;
+  background-size: cover;
+
+  transform: scale(1.02);
+
+  filter: saturate(.72);
+
+  transition:
+    transform 1s var(--ease),
+    filter .8s ease;
+}
+
+.thought-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(0,0,0,.08) 10%,
+      rgba(0,0,0,.18) 35%,
+      rgba(0,0,0,.92) 100%
+    );
+}
+
+.thought-card:hover .thought-image {
+  transform: scale(1.08);
+  filter: saturate(1);
+}
+
+.thought-content {
+  min-height: 680px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.7rem;
+}
+
+.thought-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.thought-number,
+.thought-category,
+.thought-meta {
+  color: #d4d0c8;
+  font: 500 .6rem/1.2 "DM Mono", monospace;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.thought-number {
+  color: var(--accent);
+}
+
+.thought-bottom {
+  position: relative;
+}
+
+.thought-meta {
+  display: block;
+  margin-bottom: 1rem;
+  color: #aaa69e;
+}
+
+.thought-bottom h3 {
+  max-width: 520px;
+  margin: 0 0 1rem;
+
+  color: #f4f1eb;
+
+  font-size: clamp(2.8rem, 4.2vw, 5rem);
+  line-height: .82;
+  letter-spacing: -.065em;
+}
+
+.thought-bottom p {
+  max-width: 430px;
+  margin: 0 0 1.7rem;
+
+  color: #d1cdc5;
+
+  font-size: .92rem;
+  line-height: 1.55;
+}
+
+.thought-read {
+  display: inline-flex;
+  align-items: center;
+  gap: .8rem;
+
+  padding: .75rem 0;
+
+  border: 0;
+  border-bottom: 1px solid rgba(255,255,255,.4);
+
+  background: transparent;
+  color: #fff;
+
+  cursor: pointer;
+
+  font: 500 .62rem/1 "DM Mono", monospace;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+
+  transition:
+    color .3s ease,
+    border-color .3s ease,
+    gap .3s var(--ease);
+}
+
+.thought-read span {
+  font-size: 1rem;
+}
+
+.thought-read:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  gap: 1.2rem;
+}
+
+
+/* =========================================================
+   THOUGHT READING OVERLAY
+   ========================================================= */
+
+.thought-view {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+
+  overflow-y: auto;
+
+  background: var(--bg);
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(40px);
+
+  transition:
+    opacity .45s ease,
+    transform .65s var(--ease),
+    visibility .45s;
+}
+
+.thought-view.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.thought-view-bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 1.25rem 2.5rem;
+
+  background: rgba(8,8,8,.78);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.thought-back {
+  border: 0;
+  background: transparent;
+  color: #d6d2ca;
+
+  cursor: pointer;
+
+  font: 500 .65rem/1 "DM Mono", monospace;
+  text-transform: uppercase;
+
+  transition: color .3s ease;
+}
+
+.thought-back:hover {
+  color: var(--accent);
+}
+
+.thought-view-index {
+  color: #85817a;
+
+  font: 500 .62rem/1 "DM Mono", monospace;
+  letter-spacing: .08em;
+}
+
+.thought-view-content {
+  width: min(calc(100% - 5rem), 1200px);
+  margin: 0 auto;
+  padding: 7rem 0 10rem;
+}
+
+.thought-view-header {
+  max-width: 1000px;
+  margin-bottom: 4rem;
+}
+
+.thought-view-header h1 {
+  margin: 1rem 0 2rem;
+
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(4rem, 9vw, 9rem);
+  line-height: .78;
+  letter-spacing: -.08em;
+}
+
+.thought-view-meta {
+  display: flex;
+  gap: .7rem;
+
+  color: #85817a;
+
+  font: 500 .65rem/1 "DM Mono", monospace;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.thought-view-hero {
+  width: 100%;
+  aspect-ratio: 16 / 8;
+  margin-bottom: 6rem;
+  overflow: hidden;
+  background: #151515;
+}
+
+.thought-view-hero img {
+  width: 100%;
+  height: 100%;
+  display: block;
+
+  object-fit: cover;
+}
+
+.thought-view-body {
+  display: grid;
+  grid-template-columns: 28% 1fr;
+  gap: 6vw;
+}
+
+.thought-view-lead p {
+  margin: 0;
+
+  color: #f1eee7;
+
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(1.5rem, 2.5vw, 2.4rem);
+  line-height: 1.15;
+  letter-spacing: -.035em;
+}
+
+.thought-view-copy {
+  max-width: 720px;
+}
+
+.thought-view-copy p {
+  margin: 0 0 2rem;
+
+  color: #b5b1a9;
+
+  font-size: 1.05rem;
+  line-height: 1.85;
+}
+
+.thought-view-copy h2 {
+  margin: 4rem 0 1.5rem;
+
+  font-size: clamp(2.5rem, 5vw, 5rem);
+  line-height: .85;
+}
+
+.thought-view-copy strong {
+  color: #f3f0e9;
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .thoughts-header {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .thoughts-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .thought-card:last-child {
+    grid-column: 1 / -1;
+    min-height: 600px;
+  }
+
+  .thought-card:last-child .thought-content {
+    min-height: 600px;
+  }
+
+  .thought-view-body {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .thoughts-section {
+    padding: 7rem 0 8rem;
+  }
+
+  .thoughts-header {
+    margin-bottom: 3rem;
+  }
+
+  .thoughts-header h2 {
+    font-size: clamp(3.8rem, 16vw, 6rem);
+  }
+
+  .thoughts-grid {
+    display: block;
+  }
+
+  .thought-card,
+  .thought-card:last-child {
+    min-height: 570px;
+    margin-bottom: 1rem;
+  }
+
+  .thought-content,
+  .thought-card:last-child .thought-content {
+    min-height: 570px;
+    padding: 1.3rem;
+  }
+
+  .thought-bottom h3 {
+    font-size: clamp(2.7rem, 12vw, 4rem);
+  }
+
+  .thought-view-bar {
+    padding: 1rem 1.2rem;
+  }
+
+  .thought-view-content {
+    width: min(calc(100% - 2.4rem), 1200px);
+    padding: 5rem 0 7rem;
+  }
+
+  .thought-view-header h1 {
+    font-size: clamp(3.6rem, 15vw, 6rem);
+  }
+
+  .thought-view-hero {
+    aspect-ratio: 4 / 3;
+    margin-bottom: 4rem;
+  }
+
+  .thought-view-body {
+    display: block;
+  }
+
+  .thought-view-lead {
+    margin-bottom: 3rem;
+  }
+  }
