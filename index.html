@@ -2214,173 +2214,177 @@ document.querySelectorAll('.thought-card').forEach(card=>{card.addEventListener(
 document.querySelectorAll('.thought-read').forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openThought(btn.dataset.thought)}));close.addEventListener('click',closeThought);exit.addEventListener('click',closeThought);if(closeX)closeX.addEventListener('click',closeThought);next.addEventListener('click',()=>openThought(next.dataset.thought));document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay.classList.contains('is-open'))closeThought()});
 })();
 </script>
-    <script>
-document.addEventListener("DOMContentLoaded", () => {
-
-  const form = document.getElementById("projectForm");
-
-  if (!form) return;
-
-  const steps = [...form.querySelectorAll(".form-step")];
-  const nextButtons = form.querySelectorAll(".form-next");
-  const backButtons = form.querySelectorAll(".form-back");
-  const currentStep = document.getElementById("formStepCurrent");
-  const progressLabel = form.querySelector(".form-progress-label");
-  const processItems = document.querySelectorAll(".lead-process-item");
-
-  let step = 1;
-
-  const labels = [
-    "PROJECT INTAKE",
-    "QUALIFICATION",
-    "PROJECT DETAILS",
-    "FOLLOW-UP"
-  ];
 
 
-  function showStep(number) {
+    const form = document.getElementById("projectForm");
 
-    step = number;
+if (form) {
 
-    steps.forEach((item, index) => {
-      item.classList.toggle("active", index === step - 1);
-    });
-
-    if (currentStep) {
-      currentStep.textContent =
-        String(step).padStart(2, "0");
-    }
-
-    if (progressLabel) {
-      progressLabel.textContent =
-        labels[step - 1];
-    }
-
-    processItems.forEach((item, index) => {
-      item.classList.toggle(
-        "active",
-        index === Math.min(step - 1, processItems.length - 1)
-      );
-    });
-
-    form.scrollIntoView({
-      behavior: "smooth",
-      block: "center"
-    });
-  }
-
-
-  function validateStep() {
-
-    const activeStep = steps[step - 1];
-
-    if (!activeStep) return true;
-
-    const fields = activeStep.querySelectorAll(
-      "input[required], select[required], textarea[required]"
-    );
-
-    for (const field of fields) {
-
-      if (!field.checkValidity()) {
-
-        field.reportValidity();
-
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-
-  nextButtons.forEach(button => {
-
-    button.addEventListener("click", () => {
-
-      if (!validateStep()) return;
-
-      if (step < steps.length) {
-        showStep(step + 1);
-      }
-
-    });
-
-  });
-
-
-  backButtons.forEach(button => {
-
-    button.addEventListener("click", () => {
-
-      if (step > 1) {
-        showStep(step - 1);
-      }
-
-    });
-
-  });
-
-
-  form.addEventListener("submit", event => {
+  form.addEventListener("submit", async function(event) {
 
     event.preventDefault();
 
-    if (!validateStep()) return;
+
+    const submitButton =
+      form.querySelector(".form-submit");
+
+
+    if (submitButton) {
+
+      submitButton.disabled = true;
+
+      submitButton.textContent =
+        "SENDING...";
+
+    }
+
 
     /*
-      Replace this section with your CRM / email endpoint.
+     * Collect form fields
+     */
 
-      Example:
+    const formData =
+      new FormData(form);
 
-      fetch("/api/project-intake", {
-        method: "POST",
-        body: new FormData(form)
-      });
-    */
 
-      const formData = new FormData(form);
+    const data = {
 
-fetch("/api/project-intake", {
-  method: "POST",
-  body: formData
-})
-.then(response => {
+      name:
+        formData.get("name") || "",
 
-  if (!response.ok) {
-    throw new Error("Submission failed");
-  }
+      company:
+        formData.get("company") || "",
 
-  form.classList.add("submitted");
+      email:
+        formData.get("email") || "",
 
-})
-.catch(error => {
+      phone:
+        formData.get("phone") || "",
 
-  console.error(error);
+      service:
+        formData.get("service") || "",
 
-  alert(
-    "Something went wrong. Please try again or contact us directly."
-  );
+      budget:
+        formData.get("budget") || "",
 
-});
+      timeline:
+        formData.get("timeline") || "",
 
-    form.classList.add("submitted");
+      project:
+        formData.get("project") || ""
 
-    const success = document.getElementById("formSuccess");
+    };
 
-    if (success) {
-      success.scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-      });
+
+    /*
+     * Validate required fields
+     */
+
+    if (
+      !data.name.trim() ||
+      !data.email.trim() ||
+      !data.project.trim()
+    ) {
+
+      alert(
+        "Please complete your name, email and project brief."
+      );
+
+
+      if (submitButton) {
+
+        submitButton.disabled = false;
+
+        submitButton.textContent =
+          "START A PROJECT →";
+
+      }
+
+      return;
+
+    }
+
+
+    try {
+
+      const response =
+        await fetch(
+          "/api/project-intake",
+          {
+
+            method: "POST",
+
+            headers: {
+
+              "Content-Type":
+                "application/json",
+
+              "Accept":
+                "application/json"
+
+            },
+
+            body:
+              JSON.stringify(data)
+
+          }
+        );
+
+
+      const result =
+        await response.json();
+
+
+      console.log(
+        "PROJECT INTAKE RESPONSE:",
+        result
+      );
+
+
+      if (!response.ok || !result.success) {
+
+        throw new Error(
+          result.message ||
+          "Unable to submit enquiry."
+        );
+
+      }
+
+
+      /*
+       * SUCCESS
+       */
+
+      form.classList.add("submitted");
+
+
+    } catch (error) {
+
+      console.error(
+        "FORM SUBMISSION ERROR:",
+        error
+      );
+
+
+      alert(
+        error.message ||
+        "Something went wrong. Please try again."
+      );
+
+
+      if (submitButton) {
+
+        submitButton.disabled = false;
+
+        submitButton.textContent =
+          "START A PROJECT →";
+
+      }
+
     }
 
   });
 
-
-  showStep(1);
-
-});
-    </script>
+}
 </body>
 </html>
