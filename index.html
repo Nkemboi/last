@@ -2214,781 +2214,1402 @@ document.querySelectorAll('.thought-card').forEach(card=>{card.addEventListener(
 document.querySelectorAll('.thought-read').forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openThought(btn.dataset.thought)}));close.addEventListener('click',closeThought);exit.addEventListener('click',closeThought);if(closeX)closeX.addEventListener('click',closeThought);next.addEventListener('click',()=>openThought(next.dataset.thought));document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay.classList.contains('is-open'))closeThought()});
 })();
 </script>
+
+    
 <script>
 /* =========================================================
-   AXIS MEDIA — PROJECT INTAKE FORM
-   Full frontend submission handler
-   Endpoint: /api/project-intake
+   AXIS MEDIA
+   PROJECT INTAKE — MULTI-STEP FORM
    ========================================================= */
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function () {
 
-  const form = document.getElementById("projectForm");
+  "use strict";
+
+
+  /* =======================================================
+     FIND FORM
+     ======================================================= */
+
+  const form =
+    document.getElementById("projectForm") ||
+    document.querySelector(
+      'form[data-project-form], form.project-form, form.lead-form'
+    );
+
 
   if (!form) {
-    console.warn("Axis Media: #projectForm was not found.");
+    console.warn(
+      "Axis Media: Project intake form not found."
+    );
     return;
   }
 
 
+  console.log(
+    "Axis Media: Project intake initialised."
+  );
+
+
   /* =======================================================
-     HELPERS
+     FIND FORM STEPS
+     
+     Supports:
+     .form-step
+     .lead-step
+     .intake-step
+     [data-form-step]
+     [data-step]
      ======================================================= */
 
-  const getValue = (selector) => {
-    const element = form.querySelector(selector);
-
-    if (!element) {
-      return "";
-    }
-
-    return String(element.value || "").trim();
-  };
+  let steps = [
+    ...form.querySelectorAll(
+      ".form-step, .lead-step, .intake-step, [data-form-step]"
+    )
+  ];
 
 
-  const getFieldValue = (...names) => {
+  /*
+   * If no step classes exist, look for elements with
+   * data-step attributes.
+   */
 
-    for (const name of names) {
+  if (!steps.length) {
 
-      const element = form.querySelector(
-        `[name="${name}"]`
-      );
+    steps = [
+      ...form.querySelectorAll(
+        "[data-step]"
+      )
+    ];
 
-      if (
-        element &&
-        typeof element.value !== "undefined"
-      ) {
-        const value = String(element.value).trim();
-
-        if (value) {
-          return value;
-        }
-      }
-    }
-
-    return "";
-  };
+  }
 
 
-  const getCheckedValues = (name) => {
+  /*
+   * Remove duplicate references.
+   */
 
-    const fields = form.querySelectorAll(
-      `[name="${name}"]:checked`
+  steps = [...new Set(steps)];
+
+
+  if (!steps.length) {
+
+    console.warn(
+      "Axis Media: No form stages found."
     );
 
-    return Array.from(fields)
-      .map(field => String(field.value || "").trim())
-      .filter(Boolean)
-      .join(", ");
-  };
+    /*
+     * Don't break a normal form if stages are missing.
+     */
+
+  }
 
 
-  const getButton = () => {
+  /* =======================================================
+     CURRENT STEP
+     ======================================================= */
+
+  let currentStep = 0;
+
+
+  /* =======================================================
+     BUTTON HELPERS
+     ======================================================= */
+
+  function getNextButton(button) {
 
     return (
-      form.querySelector(
-        'button[type="submit"]'
-      ) ||
-      form.querySelector(".form-submit") ||
-      form.querySelector(".submit-btn") ||
-      form.querySelector("[data-submit]")
+      button.matches(
+        '[data-next], .next-step, .form-next, .lead-next, .next'
+      )
     );
 
-  };
+  }
 
 
-  const showError = (message) => {
+  function getBackButton(button) {
 
-    let errorBox =
-      form.querySelector(".form-error");
+    return (
+      button.matches(
+        '[data-prev], [data-back], .prev-step, .form-back, .lead-back, .previous, .back'
+      )
+    );
 
-    if (!errorBox) {
-
-      errorBox =
-        document.createElement("div");
-
-      errorBox.className =
-        "form-error";
-
-      errorBox.setAttribute(
-        "role",
-        "alert"
-      );
-
-      errorBox.style.cssText = `
-        margin-top: 1rem;
-        padding: 1rem;
-        border: 1px solid rgba(255,91,53,.35);
-        background: rgba(255,91,53,.08);
-        color: #ff5b35;
-        font-size: .85rem;
-        line-height: 1.5;
-      `;
-
-      form.appendChild(errorBox);
-    }
-
-    errorBox.textContent = message;
-
-    errorBox.hidden = false;
-
-    errorBox.scrollIntoView({
-      behavior: "smooth",
-      block: "center"
-    });
-  };
+  }
 
 
-  const clearError = () => {
+  /* =======================================================
+     STEP VISIBILITY
+     ======================================================= */
 
-    const errorBox =
-      form.querySelector(".form-error");
+  function showStep(index, direction = "next") {
 
-    if (errorBox) {
-      errorBox.hidden = true;
-      errorBox.textContent = "";
-    }
-
-  };
-
-
-  const setButtonState = (
-    loading = false
-  ) => {
-
-    const button = getButton();
-
-    if (!button) {
+    if (!steps.length) {
       return;
     }
 
-    if (loading) {
-
-      if (!button.dataset.originalText) {
-
-        button.dataset.originalText =
-          button.innerHTML;
-
-      }
-
-      button.disabled = true;
-
-      button.setAttribute(
-        "aria-disabled",
-        "true"
-      );
-
-      button.innerHTML =
-        "SENDING…";
-
-    } else {
-
-      button.disabled = false;
-
-      button.removeAttribute(
-        "aria-disabled"
-      );
-
-      if (button.dataset.originalText) {
-
-        button.innerHTML =
-          button.dataset.originalText;
-
-      }
-
-    }
-
-  };
-
-
-  /* =======================================================
-     SUCCESS STATE
-     ======================================================= */
-
-  const showSuccess = () => {
 
     /*
-     * If your existing HTML already contains a success
-     * panel, use it.
+     * Clamp index.
      */
 
-    const success =
-      document.querySelector(
-        "#formSuccess"
-      ) ||
-      form.querySelector(
-        ".form-success"
-      ) ||
-      document.querySelector(
-        ".form-success"
-      );
-
-    if (success) {
-
-      success.hidden = false;
-
-      success.classList.add(
-        "active",
-        "visible"
-      );
-
-      success.scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-      });
-
-    } else {
-
-      /*
-       * Fallback success message.
-       */
-
-      form.innerHTML = `
-        <div
-          class="form-success active"
-          role="status"
-          style="
-            padding:3rem 1.5rem;
-            text-align:center;
-          "
-        >
-
-          <div
-            style="
-              width:72px;
-              height:72px;
-              margin:0 auto 2rem;
-              display:flex;
-              align-items:center;
-              justify-content:center;
-              border-radius:50%;
-              background:#ff5b35;
-              color:#fff;
-              font-size:2rem;
-            "
-          >
-            ✓
-          </div>
-
-          <p
-            style="
-              margin-bottom:.75rem;
-              font-size:.7rem;
-              font-family:'DM Mono',monospace;
-              text-transform:uppercase;
-              letter-spacing:.1em;
-              color:#ff5b35;
-            "
-          >
-            Project enquiry received
-          </p>
-
-          <h2
-            style="
-              margin-bottom:1rem;
-            "
-          >
-            Let's make it happen.
-          </h2>
-
-          <p>
-            Your project enquiry has been received.
-            We'll review your brief and get back to
-            you shortly.
-          </p>
-
-        </div>
-      `;
-
-    }
-
-  };
-
-
-  /* =======================================================
-     BUILD PAYLOAD
-     ======================================================= */
-
-  const buildPayload = () => {
-
-    /*
-     * Core contact information
-     */
-
-    const name =
-      getFieldValue(
-        "name",
-        "fullName",
-        "full_name"
-      );
-
-    const company =
-      getFieldValue(
-        "company",
-        "organisation",
-        "organization"
-      );
-
-    const email =
-      getFieldValue(
-        "email",
-        "emailAddress",
-        "email_address"
-      );
-
-    const phone =
-      getFieldValue(
-        "phone",
-        "telephone",
-        "mobile",
-        "whatsapp"
+    index =
+      Math.max(
+        0,
+        Math.min(
+          index,
+          steps.length - 1
+        )
       );
 
 
-    /*
-     * Project qualification
-     */
+    currentStep = index;
 
-    const service =
-      getFieldValue(
-        "service",
-        "services",
-        "projectType",
-        "project_type"
-      );
 
-    const budget =
-      getFieldValue(
-        "budget",
-        "projectBudget",
-        "project_budget"
-      );
+    steps.forEach(
+      (step, i) => {
 
-    const timeline =
-      getFieldValue(
-        "timeline",
-        "timeframe",
-        "projectTimeline",
-        "project_timeline"
-      );
+        const active =
+          i === currentStep;
 
 
-    /*
-     * Project brief
-     *
-     * Supports several possible names so the API does
-     * not fail simply because the textarea has a different
-     * name attribute.
-     */
-
-    let project =
-      getFieldValue(
-        "project",
-        "projectBrief",
-        "project_brief",
-        "brief",
-        "message",
-        "description",
-        "details"
-      );
-
-
-    /*
-     * Fallback: find a textarea.
-     */
-
-    if (!project) {
-
-      const textarea =
-        form.querySelector("textarea");
-
-      if (textarea) {
-
-        project =
-          String(
-            textarea.value || ""
-          ).trim();
-
-      }
-
-    }
-
-
-    /*
-     * Optional fields
-     */
-
-    const referral =
-      getFieldValue(
-        "referral",
-        "source",
-        "howDidYouHear"
-      );
-
-    const website =
-      getFieldValue(
-        "website",
-        "currentWebsite",
-        "current_website"
-      );
-
-
-    /*
-     * Checkboxes / multi-select fields
-     */
-
-    const goals =
-      getCheckedValues(
-        "goals"
-      );
-
-    const services =
-      getCheckedValues(
-        "services"
-      );
-
-
-    /*
-     * Return normalised object.
-     */
-
-    return {
-
-      name,
-
-      company,
-
-      email,
-
-      phone,
-
-      service,
-
-      budget,
-
-      timeline,
-
-      project,
-
-      referral,
-
-      website,
-
-      goals,
-
-      services
-
-    };
-
-  };
-
-
-  /* =======================================================
-     VALIDATION
-     ======================================================= */
-
-  const validate = (data) => {
-
-    const missing = [];
-
-    if (!data.name) {
-      missing.push("name");
-    }
-
-    if (!data.email) {
-      missing.push("email");
-    }
-
-    if (!data.project) {
-      missing.push("project brief");
-    }
-
-
-    /*
-     * Basic email validation.
-     */
-
-    if (
-      data.email &&
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-        data.email
-      )
-    ) {
-
-      return {
-        valid: false,
-        message:
-          "Please enter a valid email address."
-      };
-
-    }
-
-
-    if (missing.length) {
-
-      return {
-
-        valid: false,
-
-        message:
-          `Please complete the required fields: ${missing.join(", ")}.`
-
-      };
-
-    }
-
-
-    return {
-      valid: true,
-      message: ""
-    };
-
-  };
-
-
-  /* =======================================================
-     DEBUG
-     ======================================================= */
-
-  const logPayload = (data) => {
-
-    /*
-     * Safe debug output.
-     *
-     * Do NOT log passwords or sensitive SMTP
-     * credentials here.
-     */
-
-    console.log(
-      "AXIS MEDIA FORM PAYLOAD:",
-      {
-        name: !!data.name,
-        company: !!data.company,
-        email: !!data.email,
-        phone: !!data.phone,
-        service: !!data.service,
-        budget: !!data.budget,
-        timeline: !!data.timeline,
-        project: !!data.project,
-        referral: !!data.referral,
-        website: !!data.website,
-        goals: !!data.goals,
-        services: !!data.services
-      }
-    );
-
-  };
-
-
-  /* =======================================================
-     SUBMIT FORM
-     ======================================================= */
-
-  form.addEventListener(
-    "submit",
-    async (event) => {
-
-      event.preventDefault();
-
-      clearError();
-
-      const payload =
-        buildPayload();
-
-
-      /*
-       * Log what the frontend is actually sending.
-       */
-
-      logPayload(payload);
-
-
-      /*
-       * Validate before contacting API.
-       */
-
-      const validation =
-        validate(payload);
-
-      if (!validation.valid) {
-
-        showError(
-          validation.message
+        step.classList.toggle(
+          "active",
+          active
         );
 
-        return;
 
-      }
-
-
-      /*
-       * Loading state.
-       */
-
-      setButtonState(true);
+        step.classList.toggle(
+          "current",
+          active
+        );
 
 
-      try {
+        step.hidden =
+          !active;
 
-        console.log(
-          "AXIS MEDIA: Sending project enquiry..."
+
+        step.setAttribute(
+          "aria-hidden",
+          active
+            ? "false"
+            : "true"
         );
 
 
         /*
-         * Send JSON to Vercel API.
+         * Animation classes.
          */
 
-        const response =
-          await fetch(
-            "/api/project-intake",
-            {
+        step.classList.remove(
+          "step-enter-next",
+          "step-enter-prev"
+        );
 
-              method: "POST",
 
-              headers: {
+        if (active) {
 
-                "Content-Type":
-                  "application/json",
-
-                "Accept":
-                  "application/json"
-
-              },
-
-              body:
-                JSON.stringify(payload)
-
-            }
+          step.classList.add(
+            direction === "next"
+              ? "step-enter-next"
+              : "step-enter-prev"
           );
-
-
-        /*
-         * Read response safely.
-         */
-
-        const contentType =
-          response.headers.get(
-            "content-type"
-          ) || "";
-
-
-        let result;
-
-
-        if (
-          contentType.includes(
-            "application/json"
-          )
-        ) {
-
-          result =
-            await response.json();
-
-        } else {
-
-          const text =
-            await response.text();
-
-          result = {
-            success: false,
-            message: text
-          };
 
         }
 
+      }
+    );
 
-        console.log(
-          "AXIS MEDIA API RESPONSE:",
-          {
-            status:
-              response.status,
 
-            ok:
-              response.ok,
+    /*
+     * Update progress UI.
+     */
 
-            result
+    updateProgress();
 
-          }
+
+    /*
+     * Update back / next buttons.
+     */
+
+    updateNavigation();
+
+
+    /*
+     * Scroll form into view.
+     */
+
+    const formTop =
+      form.getBoundingClientRect().top +
+      window.scrollY -
+      100;
+
+
+    window.scrollTo({
+      top: Math.max(0, formTop),
+      behavior: "smooth"
+    });
+
+  }
+
+
+  /* =======================================================
+     PROGRESS
+     ======================================================= */
+
+  function updateProgress() {
+
+    const total =
+      steps.length || 1;
+
+
+    const percentage =
+      ((currentStep + 1) / total) * 100;
+
+
+    /*
+     * Generic progress bars.
+     */
+
+    const progressBars =
+      form.querySelectorAll(
+        ".form-progress span, .lead-progress span, [data-progress-bar]"
+      );
+
+
+    progressBars.forEach(
+      bar => {
+
+        bar.style.width =
+          `${percentage}%`;
+
+      }
+    );
+
+
+    /*
+     * Progress indicators.
+     */
+
+    const indicators =
+      form.querySelectorAll(
+        ".form-progress-step, .progress-step, [data-progress-step]"
+      );
+
+
+    indicators.forEach(
+      (indicator, index) => {
+
+        indicator.classList.toggle(
+          "active",
+          index === currentStep
         );
 
 
+        indicator.classList.toggle(
+          "complete",
+          index < currentStep
+        );
+
+      }
+    );
+
+
+    /*
+     * Textual counter.
+     */
+
+    const counters =
+      form.querySelectorAll(
+        "[data-step-counter], .step-counter"
+      );
+
+
+    counters.forEach(
+      counter => {
+
+        counter.textContent =
+          `${currentStep + 1} / ${total}`;
+
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     NAVIGATION BUTTON STATE
+     ======================================================= */
+
+  function updateNavigation() {
+
+    /*
+     * BACK buttons
+     */
+
+    form.querySelectorAll(
+      '[data-prev], [data-back], .prev-step, .form-back, .lead-back, .previous, .back'
+    ).forEach(
+      button => {
+
+        button.disabled =
+          currentStep === 0;
+
+        button.hidden =
+          currentStep === 0;
+
+      }
+    );
+
+
+    /*
+     * NEXT buttons
+     */
+
+    form.querySelectorAll(
+      '[data-next], .next-step, .form-next, .lead-next, .next'
+    ).forEach(
+      button => {
+
         /*
-         * API rejected request.
+         * Hide next button on final stage.
+         */
+
+        button.hidden =
+          currentStep >= steps.length - 1;
+
+      }
+    );
+
+
+    /*
+     * SUBMIT buttons
+     */
+
+    form.querySelectorAll(
+      'button[type="submit"], input[type="submit"]'
+    ).forEach(
+      button => {
+
+        /*
+         * Only show submit on final step.
+         */
+
+        button.hidden =
+          currentStep !== steps.length - 1;
+
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     GET FIELD VALUE
+     ======================================================= */
+
+  function getValue(names) {
+
+    if (!Array.isArray(names)) {
+      names = [names];
+    }
+
+
+    for (const name of names) {
+
+      const field =
+        form.querySelector(
+          `[name="${name}"]`
+        );
+
+
+      if (
+        field &&
+        String(field.value || "").trim()
+      ) {
+
+        return String(
+          field.value
+        ).trim();
+
+      }
+
+    }
+
+
+    return "";
+
+  }
+
+
+  /* =======================================================
+     VALIDATE CURRENT STEP
+     ======================================================= */
+
+  function validateStep(stepIndex) {
+
+    if (!steps.length) {
+      return true;
+    }
+
+
+    const step =
+      steps[stepIndex];
+
+
+    if (!step) {
+      return true;
+    }
+
+
+    /*
+     * Browser-native required validation.
+     */
+
+    const requiredFields =
+      step.querySelectorAll(
+        "input[required], textarea[required], select[required]"
+      );
+
+
+    let valid = true;
+
+
+    requiredFields.forEach(
+      field => {
+
+        /*
+         * Don't validate hidden fields.
          */
 
         if (
-          !response.ok ||
-          !result.success
+          field.disabled ||
+          field.offsetParent === null
         ) {
-
-          /*
-           * Show missing fields if returned
-           * by the API.
-           */
-
-          if (
-            Array.isArray(
-              result.missing
-            ) &&
-            result.missing.length
-          ) {
-
-            showError(
-              `Please complete: ${result.missing.join(", ")}.`
-            );
-
-          } else {
-
-            showError(
-              result.message ||
-              "Something went wrong. Please try again or contact us directly."
-            );
-
-          }
-
-
-          setButtonState(false);
 
           return;
 
         }
 
 
+        if (!field.checkValidity()) {
+
+          valid = false;
+
+          field.classList.add(
+            "field-error"
+          );
+
+        } else {
+
+          field.classList.remove(
+            "field-error"
+          );
+
+        }
+
+      }
+    );
+
+
+    /*
+     * Special email validation.
+     */
+
+    const email =
+      step.querySelector(
+        'input[type="email"], input[name="email"]'
+      );
+
+
+    if (
+      email &&
+      email.value.trim()
+    ) {
+
+      const emailPattern =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+      if (
+        !emailPattern.test(
+          email.value.trim()
+        )
+      ) {
+
+        valid = false;
+
+        email.classList.add(
+          "field-error"
+        );
+
+        showFormError(
+          "Please enter a valid email address."
+        );
+
+      }
+
+    }
+
+
+    if (!valid) {
+
+      showFormError(
+        "Please complete the required fields before continuing."
+      );
+
+
+      const firstInvalid =
+        step.querySelector(
+          ".field-error"
+        );
+
+
+      if (firstInvalid) {
+
+        firstInvalid.focus();
+
+      }
+
+
+      return false;
+
+    }
+
+
+    clearFormError();
+
+    return true;
+
+  }
+
+
+  /* =======================================================
+     ERROR MESSAGE
+     ======================================================= */
+
+  function showFormError(message) {
+
+    let error =
+      form.querySelector(
+        ".form-error"
+      );
+
+
+    if (!error) {
+
+      error =
+        document.createElement(
+          "div"
+        );
+
+
+      error.className =
+        "form-error";
+
+
+      error.setAttribute(
+        "role",
+        "alert"
+      );
+
+
+      error.style.cssText = `
+        margin:1rem 0;
+        padding:1rem 1.2rem;
+        border:1px solid rgba(255,91,53,.4);
+        background:rgba(255,91,53,.08);
+        color:#ff5b35;
+        font-size:.82rem;
+        line-height:1.5;
+      `;
+
+
+      form.prepend(
+        error
+      );
+
+    }
+
+
+    error.textContent =
+      message;
+
+
+    error.hidden =
+      false;
+
+  }
+
+
+  function clearFormError() {
+
+    const error =
+      form.querySelector(
+        ".form-error"
+      );
+
+
+    if (error) {
+
+      error.hidden =
+        true;
+
+      error.textContent =
+        "";
+
+    }
+
+
+    form.querySelectorAll(
+      ".field-error"
+    ).forEach(
+      field => {
+
+        field.classList.remove(
+          "field-error"
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     NEXT STEP
+     ======================================================= */
+
+  function nextStep() {
+
+    /*
+     * Don't progress if validation fails.
+     */
+
+    if (
+      !validateStep(
+        currentStep
+      )
+    ) {
+
+      return;
+
+    }
+
+
+    if (
+      currentStep <
+      steps.length - 1
+    ) {
+
+      showStep(
+        currentStep + 1,
+        "next"
+      );
+
+    }
+
+  }
+
+
+  /* =======================================================
+     PREVIOUS STEP
+     ======================================================= */
+
+  function previousStep() {
+
+    if (
+      currentStep > 0
+    ) {
+
+      clearFormError();
+
+
+      showStep(
+        currentStep - 1,
+        "prev"
+      );
+
+    }
+
+  }
+
+
+  /* =======================================================
+     COLLECT FORM DATA
+     ======================================================= */
+
+  function buildPayload() {
+
+    const formData =
+      new FormData(form);
+
+
+    const data = {};
+
+
+    /*
+     * Capture all standard fields.
+     */
+
+    formData.forEach(
+      (value, key) => {
+
         /*
-         * ===============================================
-         * SUCCESS
-         * ===============================================
+         * Support multiple checkbox values.
          */
 
-        console.log(
-          "AXIS MEDIA: Project enquiry submitted successfully."
+        if (
+          data[key] !== undefined
+        ) {
+
+          if (
+            Array.isArray(
+              data[key]
+            )
+          ) {
+
+            data[key].push(
+              value
+            );
+
+          } else {
+
+            data[key] = [
+              data[key],
+              value
+            ];
+
+          }
+
+        } else {
+
+          data[key] =
+            value;
+
+        }
+
+      }
+    );
+
+
+    /*
+     * Normalise fields for the API.
+     */
+
+    const name =
+      data.name ||
+      data.fullName ||
+      data.full_name ||
+      "";
+
+
+    const company =
+      data.company ||
+      data.organisation ||
+      data.organization ||
+      "";
+
+
+    const email =
+      data.email ||
+      data.emailAddress ||
+      data.email_address ||
+      "";
+
+
+    const phone =
+      data.phone ||
+      data.telephone ||
+      data.mobile ||
+      data.whatsapp ||
+      "";
+
+
+    const service =
+      data.service ||
+      data.services ||
+      data.projectType ||
+      data.project_type ||
+      "";
+
+
+    const budget =
+      data.budget ||
+      data.projectBudget ||
+      data.project_budget ||
+      "";
+
+
+    const timeline =
+      data.timeline ||
+      data.timeframe ||
+      data.projectTimeline ||
+      data.project_timeline ||
+      "";
+
+
+    let project =
+      data.project ||
+      data.projectBrief ||
+      data.project_brief ||
+      data.brief ||
+      data.message ||
+      data.description ||
+      data.details ||
+      "";
+
+
+    /*
+     * If project brief wasn't found by name,
+     * look for textarea.
+     */
+
+    if (!project) {
+
+      const textarea =
+        form.querySelector(
+          "textarea"
         );
 
 
-        setButtonState(false);
+      if (textarea) {
 
-        showSuccess();
+        project =
+          textarea.value.trim();
+
+      }
+
+    }
 
 
-      } catch (error) {
+    return {
 
-        /*
-         * Network / JavaScript / API connection error.
-         */
+      name:
+        String(name).trim(),
 
-        console.error(
-          "AXIS MEDIA FORM ERROR:",
-          error
+      company:
+        String(company).trim(),
+
+      email:
+        String(email).trim(),
+
+      phone:
+        String(phone).trim(),
+
+      service:
+        Array.isArray(service)
+          ? service.join(", ")
+          : String(service).trim(),
+
+      budget:
+        Array.isArray(budget)
+          ? budget.join(", ")
+          : String(budget).trim(),
+
+      timeline:
+        Array.isArray(timeline)
+          ? timeline.join(", ")
+          : String(timeline).trim(),
+
+      project:
+        Array.isArray(project)
+          ? project.join(", ")
+          : String(project).trim(),
+
+      /*
+       * Keep all original fields too.
+       */
+
+      ...data
+
+    };
+
+  }
+
+
+  /* =======================================================
+     SUBMIT TO VERCEL API
+     ======================================================= */
+
+  async function submitForm() {
+
+    /*
+     * Validate final stage.
+     */
+
+    if (
+      !validateStep(
+        currentStep
+      )
+    ) {
+
+      return;
+
+    }
+
+
+    const payload =
+      buildPayload();
+
+
+    console.log(
+      "AXIS MEDIA PROJECT PAYLOAD:",
+      payload
+    );
+
+
+    /*
+     * Explicit validation.
+     */
+
+    if (!payload.name) {
+
+      showFormError(
+        "Please enter your name."
+      );
+
+      return;
+
+    }
+
+
+    if (!payload.email) {
+
+      showFormError(
+        "Please enter your email address."
+      );
+
+      return;
+
+    }
+
+
+    if (!payload.project) {
+
+      showFormError(
+        "Please tell us a little about your project."
+      );
+
+      return;
+
+    }
+
+
+    /*
+     * Find submit button.
+     */
+
+    const submitButtons =
+      form.querySelectorAll(
+        'button[type="submit"], input[type="submit"], .form-submit'
+      );
+
+
+    submitButtons.forEach(
+      button => {
+
+        button.disabled =
+          true;
+
+        button.dataset.originalText =
+          button.innerHTML ||
+          button.value;
+
+
+        if (
+          button.tagName ===
+          "INPUT"
+        ) {
+
+          button.value =
+            "SENDING…";
+
+        } else {
+
+          button.innerHTML =
+            "SENDING…";
+
+        }
+
+      }
+    );
+
+
+    clearFormError();
+
+
+    try {
+
+      console.log(
+        "Axis Media: sending project intake..."
+      );
+
+
+      const response =
+        await fetch(
+          "/api/project-intake",
+          {
+
+            method:
+              "POST",
+
+            headers: {
+
+              "Content-Type":
+                "application/json",
+
+              "Accept":
+                "application/json"
+
+            },
+
+            body:
+              JSON.stringify(
+                payload
+              )
+
+          }
         );
 
 
-        showError(
-          "Unable to submit your enquiry right now. Please check your connection and try again."
+      /*
+       * Read API response.
+       */
+
+      const contentType =
+        response.headers.get(
+          "content-type"
+        ) || "";
+
+
+      let result;
+
+
+      if (
+        contentType.includes(
+          "application/json"
+        )
+      ) {
+
+        result =
+          await response.json();
+
+      } else {
+
+        const text =
+          await response.text();
+
+
+        result = {
+
+          success:
+            response.ok,
+
+          message:
+            text
+
+        };
+
+      }
+
+
+      console.log(
+        "Axis Media API response:",
+        result
+      );
+
+
+      if (
+        !response.ok ||
+        !result.success
+      ) {
+
+        if (
+          result.missing &&
+          result.missing.length
+        ) {
+
+          showFormError(
+            "Please complete: " +
+            result.missing.join(
+              ", "
+            )
+          );
+
+        } else {
+
+          showFormError(
+            result.message ||
+            "Something went wrong. Please try again or contact us directly."
+          );
+
+        }
+
+
+        restoreSubmitButtons();
+
+        return;
+
+      }
+
+
+      /*
+       * SUCCESS
+       */
+
+      showSuccess();
+
+
+    } catch (error) {
+
+      console.error(
+        "Axis Media form error:",
+        error
+      );
+
+
+      showFormError(
+        "Unable to submit your enquiry right now. Please check your connection and try again."
+      );
+
+
+      restoreSubmitButtons();
+
+    }
+
+  }
+
+
+  /* =======================================================
+     RESTORE SUBMIT BUTTONS
+     ======================================================= */
+
+  function restoreSubmitButtons() {
+
+    form.querySelectorAll(
+      'button[type="submit"], input[type="submit"], .form-submit'
+    ).forEach(
+      button => {
+
+        button.disabled =
+          false;
+
+
+        if (
+          button.dataset.originalText
+        ) {
+
+          if (
+            button.tagName ===
+            "INPUT"
+          ) {
+
+            button.value =
+              button.dataset.originalText;
+
+          } else {
+
+            button.innerHTML =
+              button.dataset.originalText;
+
+          }
+
+        }
+
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     SUCCESS
+     ======================================================= */
+
+  function showSuccess() {
+
+    /*
+     * Hide form.
+     */
+
+    form.querySelectorAll(
+      ".form-step, .lead-step, .intake-step, [data-form-step], [data-step]"
+    ).forEach(
+      step => {
+
+        step.hidden =
+          true;
+
+      }
+    );
+
+
+    /*
+     * Existing success panel.
+     */
+
+    let success =
+      form.querySelector(
+        ".form-success"
+      ) ||
+      document.getElementById(
+        "formSuccess"
+      );
+
+
+    if (!success) {
+
+      success =
+        document.createElement(
+          "div"
         );
 
 
-        setButtonState(false);
+      success.className =
+        "form-success";
+
+
+      success.setAttribute(
+        "role",
+        "status"
+      );
+
+
+      success.style.cssText = `
+        padding:4rem 1.5rem;
+        text-align:center;
+      `;
+
+
+      form.appendChild(
+        success
+      );
+
+    }
+
+
+    success.hidden =
+      false;
+
+
+    success.innerHTML = `
+
+      <div
+        style="
+          width:72px;
+          height:72px;
+          margin:0 auto 2rem;
+          display:grid;
+          place-items:center;
+          border-radius:50%;
+          background:#ff5b35;
+          color:#080808;
+          font-size:2rem;
+        "
+      >
+        ✓
+      </div>
+
+      <div
+        style="
+          margin-bottom:.75rem;
+          color:#ff5b35;
+          font:500 .65rem/1 'DM Mono',monospace;
+          letter-spacing:.1em;
+          text-transform:uppercase;
+        "
+      >
+        Project enquiry received
+      </div>
+
+      <h2>
+        Let's make it happen.
+      </h2>
+
+      <p>
+        Your project enquiry has been received.
+        We'll review your brief and get back to
+        you shortly.
+      </p>
+
+    `;
+
+
+    success.scrollIntoView({
+      behavior:
+        "smooth",
+
+      block:
+        "center"
+
+    });
+
+  }
+
+
+  /* =======================================================
+     EVENT DELEGATION
+     
+     This is important.
+     
+     It means the buttons work even if the form's
+     markup is generated dynamically.
+     ======================================================= */
+
+  form.addEventListener(
+    "click",
+    function (event) {
+
+      const button =
+        event.target.closest(
+          "button, a, input[type='button'], input[type='submit']"
+        );
+
+
+      if (!button) {
+        return;
+      }
+
+
+      /*
+       * NEXT
+       */
+
+      if (
+        getNextButton(
+          button
+        )
+      ) {
+
+        event.preventDefault();
+
+        event.stopPropagation();
+
+        nextStep();
+
+        return;
+
+      }
+
+
+      /*
+       * BACK
+       */
+
+      if (
+        getBackButton(
+          button
+        )
+      ) {
+
+        event.preventDefault();
+
+        event.stopPropagation();
+
+        previousStep();
+
+        return;
 
       }
 
@@ -2997,36 +3618,66 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   /* =======================================================
-     CLEAR ERROR WHEN USER STARTS EDITING
+     FORM SUBMISSION
      ======================================================= */
 
   form.addEventListener(
-    "input",
-    () => {
-      clearError();
+    "submit",
+    function (event) {
+
+      event.preventDefault();
+
+      event.stopPropagation();
+
+
+      /*
+       * If we're not on the final step,
+       * treat submit as NEXT.
+       */
+
+      if (
+        steps.length &&
+        currentStep <
+        steps.length - 1
+      ) {
+
+        nextStep();
+
+        return;
+
+      }
+
+
+      /*
+       * Final stage.
+       */
+
+      submitForm();
+
     }
   );
 
 
   /* =======================================================
-     SUPPORT ENTER KEY
+     REMOVE ERROR WHEN USER EDITS FIELD
      ======================================================= */
 
   form.addEventListener(
-    "keydown",
-    (event) => {
-
-      /*
-       * Don't accidentally submit from Enter inside
-       * a textarea.
-       */
+    "input",
+    function (event) {
 
       if (
-        event.key === "Enter" &&
-        event.target.tagName === "TEXTAREA"
+        event.target.matches(
+          "input, textarea, select"
+        )
       ) {
 
-        return;
+        event.target.classList.remove(
+          "field-error"
+        );
+
+
+        clearFormError();
 
       }
 
@@ -3038,8 +3689,58 @@ document.addEventListener("DOMContentLoaded", () => {
      INITIALISE
      ======================================================= */
 
+  if (steps.length) {
+
+    /*
+     * Make sure only first step is visible.
+     */
+
+    steps.forEach(
+      (step, index) => {
+
+        step.hidden =
+          index !== 0;
+
+        step.classList.toggle(
+          "active",
+          index === 0
+        );
+
+        step.setAttribute(
+          "aria-hidden",
+          index === 0
+            ? "false"
+            : "true"
+        );
+
+      }
+    );
+
+
+    currentStep =
+      0;
+
+
+    updateProgress();
+
+    updateNavigation();
+
+  }
+
+
+  /* =======================================================
+     DEBUG INFORMATION
+     ======================================================= */
+
   console.log(
-    "Axis Media Project Intake form initialised."
+    "Axis Media form stages:",
+    steps.length
+  );
+
+
+  console.log(
+    "Axis Media current stage:",
+    currentStep + 1
   );
 
 });
