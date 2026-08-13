@@ -1,0 +1,407 @@
+/* =========================================================
+   LEAD GENERATION / START A PROJECT
+   ========================================================= */
+
+.lead-section {
+  position: relative;
+  padding: 10rem 0 12rem;
+  background: #f1efe9;
+  color: #111;
+  overflow: hidden;
+}
+
+.lead-section::before {
+  content: "";
+  position: absolute;
+  width: 40rem;
+  height: 40rem;
+  right: -20rem;
+  top: 10%;
+  border-radius: 50%;
+  background: rgba(255, 91, 53, .08);
+  pointer-events: none;
+}
+
+.lead-header {
+  position: relative;
+  max-width: 1000px;
+  margin-bottom: 6rem;
+}
+
+.lead-header .eyebrow {
+  color: #77736d;
+}
+
+.lead-header h2 {
+  margin: 1rem 0 2rem;
+  color: #111;
+  font-size: clamp(4rem, 8vw, 9rem);
+  line-height: .82;
+}
+
+.lead-header h2 .accent {
+  color: #ff5b35;
+}
+
+.lead-header > p {
+  max-width: 650px;
+  margin: 0;
+  color: #66625c;
+  font-size: clamp(1rem, 1.4vw, 1.2rem);
+  line-height: 1.7;
+}
+
+.lead-layout {
+  position: relative;
+  display: grid;
+  grid-template-columns: .75fr 1.25fr;
+  gap: clamp(4rem, 9vw, 10rem);
+  align-items: start;
+}
+
+
+/* PROCESS */
+
+.lead-process {
+  position: sticky;
+  top: 7rem;
+  border-top: 1px solid rgba(17,17,17,.15);
+}
+
+.lead-process-item {
+  display: grid;
+  grid-template-columns: 45px 1fr;
+  gap: 1rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid rgba(17,17,17,.15);
+  opacity: .45;
+  transition:
+    opacity .35s ease,
+    padding .35s ease;
+}
+
+.lead-process-item.active {
+  opacity: 1;
+  padding-left: 1rem;
+}
+
+.lead-process-item > span {
+  color: #ff5b35;
+  font: 500 .7rem/1 "DM Mono", monospace;
+}
+
+.lead-process-item strong {
+  display: block;
+  margin-bottom: .35rem;
+  font: 600 .75rem/1.2 "DM Mono", monospace;
+  letter-spacing: .05em;
+}
+
+.lead-process-item p {
+  margin: 0;
+  color: #77736d;
+  font-size: .82rem;
+  line-height: 1.5;
+}
+
+
+/* FORM */
+
+.project-form {
+  position: relative;
+  min-height: 500px;
+  padding: clamp(2rem, 4vw, 4rem);
+  background: #fff;
+  border: 1px solid rgba(17,17,17,.1);
+}
+
+.form-progress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(17,17,17,.1);
+}
+
+.form-progress-label,
+.form-progress-count {
+  color: #77736d;
+  font: 500 .65rem/1 "DM Mono", monospace;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.form-progress-count {
+  color: #ff5b35;
+}
+
+.form-step {
+  display: none;
+}
+
+.form-step.active {
+  display: block;
+  animation: formReveal .45s cubic-bezier(.2,.7,.2,1);
+}
+
+@keyframes formReveal {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-group {
+  margin-bottom: 2rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: .65rem;
+  color: #222;
+  font: 600 .7rem/1.2 "DM Mono", monospace;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid #ccc;
+  border-radius: 0;
+  outline: 0;
+  background: transparent;
+  color: #111;
+  padding: .8rem 0;
+  font: 500 1rem/1.4 "Manrope", sans-serif;
+  transition:
+    border-color .3s ease,
+    box-shadow .3s ease;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 130px;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #aaa;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #ff5b35;
+  box-shadow: 0 1px 0 #ff5b35;
+}
+
+.form-group select {
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 3rem;
+}
+
+.form-next,
+.form-back,
+.form-submit {
+  border: 0;
+  cursor: pointer;
+  padding: 1rem 1.4rem;
+  font: 600 .68rem/1 "DM Mono", monospace;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  transition:
+    background .3s ease,
+    color .3s ease,
+    transform .3s ease;
+}
+
+.form-next,
+.form-submit {
+  background: #111;
+  color: #fff;
+}
+
+.form-next:hover,
+.form-submit:hover {
+  background: #ff5b35;
+  transform: translateY(-2px);
+}
+
+.form-back {
+  padding-left: 0;
+  background: transparent;
+  color: #77736d;
+}
+
+.form-back:hover {
+  color: #111;
+}
+
+
+/* QUALIFICATION */
+
+.qualification-card {
+  padding: 2rem;
+  margin-bottom: 2rem;
+  background: #f1efe9;
+}
+
+.qualification-card .eyebrow {
+  color: #ff5b35;
+}
+
+.qualification-card h3 {
+  max-width: 550px;
+  margin: 1rem 0;
+  color: #111;
+  font-size: clamp(2.5rem, 5vw, 5rem);
+  line-height: .85;
+}
+
+.qualification-card p {
+  max-width: 500px;
+  margin: 0;
+  color: #66625c;
+}
+
+.form-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: .8rem;
+  color: #66625c;
+  font-size: .8rem;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.form-checkbox input {
+  margin-top: .2rem;
+  accent-color: #ff5b35;
+}
+
+
+/* SUCCESS */
+
+.form-success {
+  display: none;
+  text-align: center;
+  padding: 4rem 1rem;
+}
+
+.project-form.submitted .form-progress,
+.project-form.submitted .form-step {
+  display: none;
+}
+
+.project-form.submitted .form-success {
+  display: block;
+  animation: formReveal .5s ease;
+}
+
+.success-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 2rem;
+  border-radius: 50%;
+  background: #ff5b35;
+  color: #fff;
+  font-size: 1.5rem;
+}
+
+.form-success .eyebrow {
+  color: #ff5b35;
+}
+
+.form-success h3 {
+  max-width: 650px;
+  margin: 1rem auto;
+  color: #111;
+  font-size: clamp(3rem, 6vw, 6rem);
+  line-height: .85;
+}
+
+.form-success p {
+  max-width: 500px;
+  margin: 0 auto;
+  color: #66625c;
+}
+
+
+/* TABLET */
+
+@media (max-width: 900px) {
+
+  .lead-section {
+    padding: 8rem 0;
+  }
+
+  .lead-layout {
+    grid-template-columns: 1fr;
+    gap: 4rem;
+  }
+
+  .lead-process {
+    position: static;
+  }
+
+}
+
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+
+  .lead-section {
+    padding: 6rem 0;
+  }
+
+  .lead-header {
+    margin-bottom: 3rem;
+  }
+
+  .lead-header h2 {
+    font-size: clamp(3.5rem, 15vw, 6rem);
+  }
+
+  .lead-process-item {
+    grid-template-columns: 35px 1fr;
+    padding: 1.2rem 0;
+  }
+
+  .project-form {
+    padding: 1.5rem;
+  }
+
+  .form-actions {
+    margin-top: 2rem;
+  }
+
+  .form-next,
+  .form-submit {
+    padding: .95rem 1rem;
+  }
+
+  .qualification-card {
+    padding: 1.5rem;
+  }
+
+}
