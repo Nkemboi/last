@@ -1731,6 +1731,291 @@ html.case-open, body.case-open { overflow:hidden; }
 
 </section>
 <section class="contact" id="contact">
+    <section class="lead-section" id="start-project">
+  <div class="container">
+
+    <div class="lead-header">
+      <span class="eyebrow">START A PROJECT</span>
+
+      <h2>
+        Let's build something
+        <span class="accent">worth talking about.</span>
+      </h2>
+
+      <p>
+        Tell us a little about your project. We'll review your brief,
+        understand what you need and get back to you with the next step.
+      </p>
+    </div>
+
+    <div class="lead-layout">
+
+      <!-- PROCESS -->
+      <div class="lead-process">
+
+        <div class="lead-process-item active">
+          <span>01</span>
+          <div>
+            <strong>PROJECT INTAKE</strong>
+            <p>Tell us about your business, project and objectives.</p>
+          </div>
+        </div>
+
+        <div class="lead-process-item">
+          <span>02</span>
+          <div>
+            <strong>QUALIFICATION</strong>
+            <p>We assess the opportunity, scope and fit.</p>
+          </div>
+        </div>
+
+        <div class="lead-process-item">
+          <span>03</span>
+          <div>
+            <strong>EMAIL / CRM</strong>
+            <p>Your enquiry is captured and routed for follow-up.</p>
+          </div>
+        </div>
+
+        <div class="lead-process-item">
+          <span>04</span>
+          <div>
+            <strong>FOLLOW-UP</strong>
+            <p>We contact you to discuss the project and next steps.</p>
+          </div>
+        </div>
+
+      </div>
+
+
+      <!-- FORM -->
+      <form
+        class="project-form"
+        id="projectForm"
+        action="#"
+        method="POST"
+      >
+
+        <div class="form-progress">
+          <span class="form-progress-label">PROJECT INTAKE</span>
+          <span class="form-progress-count">
+            <span id="formStepCurrent">01</span> / 04
+          </span>
+        </div>
+
+
+        <!-- STEP 1 -->
+        <div class="form-step active" data-step="1">
+
+          <div class="form-group">
+            <label for="name">Your name *</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              placeholder="John Doe"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="company">Company / Organisation</label>
+            <input
+              type="text"
+              id="company"
+              name="company"
+              placeholder="Your company"
+            >
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="form-next">
+              NEXT →
+            </button>
+          </div>
+
+        </div>
+
+
+        <!-- STEP 2 -->
+        <div class="form-step" data-step="2">
+
+          <div class="form-group">
+            <label for="email">Email address *</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="you@company.com"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Phone / WhatsApp</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              placeholder="+254..."
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="service">What do you need?</label>
+
+            <select id="service" name="service">
+              <option value="">Select a service</option>
+              <option value="brand-strategy">Brand Strategy</option>
+              <option value="branding">Brand Identity</option>
+              <option value="creative-design">Creative Design</option>
+              <option value="digital-marketing">Digital Marketing</option>
+              <option value="website">Website / Digital Experience</option>
+              <option value="campaign">Campaign / Advertising</option>
+              <option value="other">Something else</option>
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="form-back">
+              ← BACK
+            </button>
+
+            <button type="button" class="form-next">
+              NEXT →
+            </button>
+          </div>
+
+        </div>
+
+
+        <!-- STEP 3 -->
+        <div class="form-step" data-step="3">
+
+          <div class="form-group">
+            <label for="budget">Estimated project budget</label>
+
+            <select id="budget" name="budget">
+              <option value="">Select a range</option>
+              <option value="under-50k">Under KES 50,000</option>
+              <option value="50k-100k">KES 50,000 – 100,000</option>
+              <option value="100k-250k">KES 100,000 – 250,000</option>
+              <option value="250k-500k">KES 250,000 – 500,000</option>
+              <option value="500k-plus">KES 500,000+</option>
+              <option value="not-sure">Not sure yet</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="timeline">When do you need it?</label>
+
+            <select id="timeline" name="timeline">
+              <option value="">Select timeline</option>
+              <option value="asap">As soon as possible</option>
+              <option value="2-4-weeks">Within 2–4 weeks</option>
+              <option value="1-2-months">1–2 months</option>
+              <option value="3-months-plus">3+ months</option>
+              <option value="flexible">I'm flexible</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="project">Tell us about the project *</label>
+
+            <textarea
+              id="project"
+              name="project"
+              rows="5"
+              placeholder="What are you trying to achieve?"
+              required
+            ></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="form-back">
+              ← BACK
+            </button>
+
+            <button type="button" class="form-next">
+              NEXT →
+            </button>
+          </div>
+
+        </div>
+
+
+        <!-- STEP 4 -->
+        <div class="form-step" data-step="4">
+
+          <div class="qualification-card">
+
+            <span class="eyebrow">ALMOST THERE</span>
+
+            <h3>
+              Ready to start
+              the conversation?
+            </h3>
+
+            <p>
+              Submit your project and we'll review the information
+              before getting back to you.
+            </p>
+
+          </div>
+
+          <label class="form-checkbox">
+            <input
+              type="checkbox"
+              id="consent"
+              name="consent"
+              required
+            >
+
+            <span>
+              I agree to be contacted about this project.
+            </span>
+          </label>
+
+          <div class="form-actions">
+
+            <button type="button" class="form-back">
+              ← BACK
+            </button>
+
+            <button type="submit" class="form-submit">
+              START A PROJECT →
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- SUCCESS -->
+        <div class="form-success" id="formSuccess">
+
+          <span class="success-icon">✓</span>
+
+          <span class="eyebrow">PROJECT RECEIVED</span>
+
+          <h3>
+            Thanks. Let's make
+            something happen.
+          </h3>
+
+          <p>
+            Your project enquiry has been received.
+            We'll review your brief and get back to you shortly.
+          </p>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+</section>
 <div class="container contact-grid reveal">
 <div><div class="eyebrow">07 / Start something</div><h2>Have a brand<br/>worth <span class="accent">moving?</span></h2><a class="contact-link" href="mailto:hello@axismedia.co.ke">hello@axismedia.co.ke ↗</a></div>
 <div class="contact-copy">Tell us what you are building, where you are stuck, or where you want to go next. We will bring the right creative thinking to the table.<br/><br/><span style="color:white">Nairobi · Kenya</span><br/>Working across Africa &amp; beyond.</div>
