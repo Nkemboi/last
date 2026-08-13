@@ -2214,177 +2214,835 @@ document.querySelectorAll('.thought-card').forEach(card=>{card.addEventListener(
 document.querySelectorAll('.thought-read').forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openThought(btn.dataset.thought)}));close.addEventListener('click',closeThought);exit.addEventListener('click',closeThought);if(closeX)closeX.addEventListener('click',closeThought);next.addEventListener('click',()=>openThought(next.dataset.thought));document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay.classList.contains('is-open'))closeThought()});
 })();
 </script>
-
 <script>
-    const form = document.getElementById("projectForm");
+/* =========================================================
+   AXIS MEDIA — PROJECT INTAKE FORM
+   Full frontend submission handler
+   Endpoint: /api/project-intake
+   ========================================================= */
 
-if (form) {
+document.addEventListener("DOMContentLoaded", () => {
 
-  form.addEventListener("submit", async function(event) {
+  const form = document.getElementById("projectForm");
 
-    event.preventDefault();
+  if (!form) {
+    console.warn("Axis Media: #projectForm was not found.");
+    return;
+  }
 
 
-    const submitButton =
-      form.querySelector(".form-submit");
+  /* =======================================================
+     HELPERS
+     ======================================================= */
 
+  const getValue = (selector) => {
+    const element = form.querySelector(selector);
 
-    if (submitButton) {
-
-      submitButton.disabled = true;
-
-      submitButton.textContent =
-        "SENDING...";
-
+    if (!element) {
+      return "";
     }
 
-
-    /*
-     * Collect form fields
-     */
-
-    const formData =
-      new FormData(form);
+    return String(element.value || "").trim();
+  };
 
 
-    const data = {
+  const getFieldValue = (...names) => {
 
-      name:
-        formData.get("name") || "",
+    for (const name of names) {
 
-      company:
-        formData.get("company") || "",
-
-      email:
-        formData.get("email") || "",
-
-      phone:
-        formData.get("phone") || "",
-
-      service:
-        formData.get("service") || "",
-
-      budget:
-        formData.get("budget") || "",
-
-      timeline:
-        formData.get("timeline") || "",
-
-      project:
-        formData.get("project") || ""
-
-    };
-
-
-    /*
-     * Validate required fields
-     */
-
-    if (
-      !data.name.trim() ||
-      !data.email.trim() ||
-      !data.project.trim()
-    ) {
-
-      alert(
-        "Please complete your name, email and project brief."
+      const element = form.querySelector(
+        `[name="${name}"]`
       );
 
+      if (
+        element &&
+        typeof element.value !== "undefined"
+      ) {
+        const value = String(element.value).trim();
 
-      if (submitButton) {
+        if (value) {
+          return value;
+        }
+      }
+    }
 
-        submitButton.disabled = false;
+    return "";
+  };
 
-        submitButton.textContent =
-          "START A PROJECT →";
+
+  const getCheckedValues = (name) => {
+
+    const fields = form.querySelectorAll(
+      `[name="${name}"]:checked`
+    );
+
+    return Array.from(fields)
+      .map(field => String(field.value || "").trim())
+      .filter(Boolean)
+      .join(", ");
+  };
+
+
+  const getButton = () => {
+
+    return (
+      form.querySelector(
+        'button[type="submit"]'
+      ) ||
+      form.querySelector(".form-submit") ||
+      form.querySelector(".submit-btn") ||
+      form.querySelector("[data-submit]")
+    );
+
+  };
+
+
+  const showError = (message) => {
+
+    let errorBox =
+      form.querySelector(".form-error");
+
+    if (!errorBox) {
+
+      errorBox =
+        document.createElement("div");
+
+      errorBox.className =
+        "form-error";
+
+      errorBox.setAttribute(
+        "role",
+        "alert"
+      );
+
+      errorBox.style.cssText = `
+        margin-top: 1rem;
+        padding: 1rem;
+        border: 1px solid rgba(255,91,53,.35);
+        background: rgba(255,91,53,.08);
+        color: #ff5b35;
+        font-size: .85rem;
+        line-height: 1.5;
+      `;
+
+      form.appendChild(errorBox);
+    }
+
+    errorBox.textContent = message;
+
+    errorBox.hidden = false;
+
+    errorBox.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+  };
+
+
+  const clearError = () => {
+
+    const errorBox =
+      form.querySelector(".form-error");
+
+    if (errorBox) {
+      errorBox.hidden = true;
+      errorBox.textContent = "";
+    }
+
+  };
+
+
+  const setButtonState = (
+    loading = false
+  ) => {
+
+    const button = getButton();
+
+    if (!button) {
+      return;
+    }
+
+    if (loading) {
+
+      if (!button.dataset.originalText) {
+
+        button.dataset.originalText =
+          button.innerHTML;
 
       }
 
-      return;
+      button.disabled = true;
+
+      button.setAttribute(
+        "aria-disabled",
+        "true"
+      );
+
+      button.innerHTML =
+        "SENDING…";
+
+    } else {
+
+      button.disabled = false;
+
+      button.removeAttribute(
+        "aria-disabled"
+      );
+
+      if (button.dataset.originalText) {
+
+        button.innerHTML =
+          button.dataset.originalText;
+
+      }
+
+    }
+
+  };
+
+
+  /* =======================================================
+     SUCCESS STATE
+     ======================================================= */
+
+  const showSuccess = () => {
+
+    /*
+     * If your existing HTML already contains a success
+     * panel, use it.
+     */
+
+    const success =
+      document.querySelector(
+        "#formSuccess"
+      ) ||
+      form.querySelector(
+        ".form-success"
+      ) ||
+      document.querySelector(
+        ".form-success"
+      );
+
+    if (success) {
+
+      success.hidden = false;
+
+      success.classList.add(
+        "active",
+        "visible"
+      );
+
+      success.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+
+    } else {
+
+      /*
+       * Fallback success message.
+       */
+
+      form.innerHTML = `
+        <div
+          class="form-success active"
+          role="status"
+          style="
+            padding:3rem 1.5rem;
+            text-align:center;
+          "
+        >
+
+          <div
+            style="
+              width:72px;
+              height:72px;
+              margin:0 auto 2rem;
+              display:flex;
+              align-items:center;
+              justify-content:center;
+              border-radius:50%;
+              background:#ff5b35;
+              color:#fff;
+              font-size:2rem;
+            "
+          >
+            ✓
+          </div>
+
+          <p
+            style="
+              margin-bottom:.75rem;
+              font-size:.7rem;
+              font-family:'DM Mono',monospace;
+              text-transform:uppercase;
+              letter-spacing:.1em;
+              color:#ff5b35;
+            "
+          >
+            Project enquiry received
+          </p>
+
+          <h2
+            style="
+              margin-bottom:1rem;
+            "
+          >
+            Let's make it happen.
+          </h2>
+
+          <p>
+            Your project enquiry has been received.
+            We'll review your brief and get back to
+            you shortly.
+          </p>
+
+        </div>
+      `;
+
+    }
+
+  };
+
+
+  /* =======================================================
+     BUILD PAYLOAD
+     ======================================================= */
+
+  const buildPayload = () => {
+
+    /*
+     * Core contact information
+     */
+
+    const name =
+      getFieldValue(
+        "name",
+        "fullName",
+        "full_name"
+      );
+
+    const company =
+      getFieldValue(
+        "company",
+        "organisation",
+        "organization"
+      );
+
+    const email =
+      getFieldValue(
+        "email",
+        "emailAddress",
+        "email_address"
+      );
+
+    const phone =
+      getFieldValue(
+        "phone",
+        "telephone",
+        "mobile",
+        "whatsapp"
+      );
+
+
+    /*
+     * Project qualification
+     */
+
+    const service =
+      getFieldValue(
+        "service",
+        "services",
+        "projectType",
+        "project_type"
+      );
+
+    const budget =
+      getFieldValue(
+        "budget",
+        "projectBudget",
+        "project_budget"
+      );
+
+    const timeline =
+      getFieldValue(
+        "timeline",
+        "timeframe",
+        "projectTimeline",
+        "project_timeline"
+      );
+
+
+    /*
+     * Project brief
+     *
+     * Supports several possible names so the API does
+     * not fail simply because the textarea has a different
+     * name attribute.
+     */
+
+    let project =
+      getFieldValue(
+        "project",
+        "projectBrief",
+        "project_brief",
+        "brief",
+        "message",
+        "description",
+        "details"
+      );
+
+
+    /*
+     * Fallback: find a textarea.
+     */
+
+    if (!project) {
+
+      const textarea =
+        form.querySelector("textarea");
+
+      if (textarea) {
+
+        project =
+          String(
+            textarea.value || ""
+          ).trim();
+
+      }
 
     }
 
 
-    try {
+    /*
+     * Optional fields
+     */
 
-      const response =
-        await fetch(
-          "/api/project-intake",
-          {
+    const referral =
+      getFieldValue(
+        "referral",
+        "source",
+        "howDidYouHear"
+      );
 
-            method: "POST",
-
-            headers: {
-
-              "Content-Type":
-                "application/json",
-
-              "Accept":
-                "application/json"
-
-            },
-
-            body:
-              JSON.stringify(data)
-
-          }
-        );
-
-
-      const result =
-        await response.json();
-
-
-      console.log(
-        "PROJECT INTAKE RESPONSE:",
-        result
+    const website =
+      getFieldValue(
+        "website",
+        "currentWebsite",
+        "current_website"
       );
 
 
-      if (!response.ok || !result.success) {
+    /*
+     * Checkboxes / multi-select fields
+     */
 
-        throw new Error(
-          result.message ||
-          "Unable to submit enquiry."
+    const goals =
+      getCheckedValues(
+        "goals"
+      );
+
+    const services =
+      getCheckedValues(
+        "services"
+      );
+
+
+    /*
+     * Return normalised object.
+     */
+
+    return {
+
+      name,
+
+      company,
+
+      email,
+
+      phone,
+
+      service,
+
+      budget,
+
+      timeline,
+
+      project,
+
+      referral,
+
+      website,
+
+      goals,
+
+      services
+
+    };
+
+  };
+
+
+  /* =======================================================
+     VALIDATION
+     ======================================================= */
+
+  const validate = (data) => {
+
+    const missing = [];
+
+    if (!data.name) {
+      missing.push("name");
+    }
+
+    if (!data.email) {
+      missing.push("email");
+    }
+
+    if (!data.project) {
+      missing.push("project brief");
+    }
+
+
+    /*
+     * Basic email validation.
+     */
+
+    if (
+      data.email &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+        data.email
+      )
+    ) {
+
+      return {
+        valid: false,
+        message:
+          "Please enter a valid email address."
+      };
+
+    }
+
+
+    if (missing.length) {
+
+      return {
+
+        valid: false,
+
+        message:
+          `Please complete the required fields: ${missing.join(", ")}.`
+
+      };
+
+    }
+
+
+    return {
+      valid: true,
+      message: ""
+    };
+
+  };
+
+
+  /* =======================================================
+     DEBUG
+     ======================================================= */
+
+  const logPayload = (data) => {
+
+    /*
+     * Safe debug output.
+     *
+     * Do NOT log passwords or sensitive SMTP
+     * credentials here.
+     */
+
+    console.log(
+      "AXIS MEDIA FORM PAYLOAD:",
+      {
+        name: !!data.name,
+        company: !!data.company,
+        email: !!data.email,
+        phone: !!data.phone,
+        service: !!data.service,
+        budget: !!data.budget,
+        timeline: !!data.timeline,
+        project: !!data.project,
+        referral: !!data.referral,
+        website: !!data.website,
+        goals: !!data.goals,
+        services: !!data.services
+      }
+    );
+
+  };
+
+
+  /* =======================================================
+     SUBMIT FORM
+     ======================================================= */
+
+  form.addEventListener(
+    "submit",
+    async (event) => {
+
+      event.preventDefault();
+
+      clearError();
+
+      const payload =
+        buildPayload();
+
+
+      /*
+       * Log what the frontend is actually sending.
+       */
+
+      logPayload(payload);
+
+
+      /*
+       * Validate before contacting API.
+       */
+
+      const validation =
+        validate(payload);
+
+      if (!validation.valid) {
+
+        showError(
+          validation.message
         );
+
+        return;
 
       }
 
 
       /*
-       * SUCCESS
+       * Loading state.
        */
 
-      form.classList.add("submitted");
+      setButtonState(true);
 
 
-    } catch (error) {
+      try {
 
-      console.error(
-        "FORM SUBMISSION ERROR:",
-        error
-      );
-
-
-      alert(
-        error.message ||
-        "Something went wrong. Please try again."
-      );
+        console.log(
+          "AXIS MEDIA: Sending project enquiry..."
+        );
 
 
-      if (submitButton) {
+        /*
+         * Send JSON to Vercel API.
+         */
 
-        submitButton.disabled = false;
+        const response =
+          await fetch(
+            "/api/project-intake",
+            {
 
-        submitButton.textContent =
-          "START A PROJECT →";
+              method: "POST",
+
+              headers: {
+
+                "Content-Type":
+                  "application/json",
+
+                "Accept":
+                  "application/json"
+
+              },
+
+              body:
+                JSON.stringify(payload)
+
+            }
+          );
+
+
+        /*
+         * Read response safely.
+         */
+
+        const contentType =
+          response.headers.get(
+            "content-type"
+          ) || "";
+
+
+        let result;
+
+
+        if (
+          contentType.includes(
+            "application/json"
+          )
+        ) {
+
+          result =
+            await response.json();
+
+        } else {
+
+          const text =
+            await response.text();
+
+          result = {
+            success: false,
+            message: text
+          };
+
+        }
+
+
+        console.log(
+          "AXIS MEDIA API RESPONSE:",
+          {
+            status:
+              response.status,
+
+            ok:
+              response.ok,
+
+            result
+
+          }
+        );
+
+
+        /*
+         * API rejected request.
+         */
+
+        if (
+          !response.ok ||
+          !result.success
+        ) {
+
+          /*
+           * Show missing fields if returned
+           * by the API.
+           */
+
+          if (
+            Array.isArray(
+              result.missing
+            ) &&
+            result.missing.length
+          ) {
+
+            showError(
+              `Please complete: ${result.missing.join(", ")}.`
+            );
+
+          } else {
+
+            showError(
+              result.message ||
+              "Something went wrong. Please try again or contact us directly."
+            );
+
+          }
+
+
+          setButtonState(false);
+
+          return;
+
+        }
+
+
+        /*
+         * ===============================================
+         * SUCCESS
+         * ===============================================
+         */
+
+        console.log(
+          "AXIS MEDIA: Project enquiry submitted successfully."
+        );
+
+
+        setButtonState(false);
+
+        showSuccess();
+
+
+      } catch (error) {
+
+        /*
+         * Network / JavaScript / API connection error.
+         */
+
+        console.error(
+          "AXIS MEDIA FORM ERROR:",
+          error
+        );
+
+
+        showError(
+          "Unable to submit your enquiry right now. Please check your connection and try again."
+        );
+
+
+        setButtonState(false);
 
       }
 
     }
+  );
 
-  });
 
+  /* =======================================================
+     CLEAR ERROR WHEN USER STARTS EDITING
+     ======================================================= */
+
+  form.addEventListener(
+    "input",
+    () => {
+      clearError();
+    }
+  );
+
+
+  /* =======================================================
+     SUPPORT ENTER KEY
+     ======================================================= */
+
+  form.addEventListener(
+    "keydown",
+    (event) => {
+
+      /*
+       * Don't accidentally submit from Enter inside
+       * a textarea.
+       */
+
+      if (
+        event.key === "Enter" &&
+        event.target.tagName === "TEXTAREA"
+      ) {
+
+        return;
+
+      }
+
+    }
+  );
+
+
+  /* =======================================================
+     INITIALISE
+     ======================================================= */
+
+  console.log(
+    "Axis Media Project Intake form initialised."
+  );
+
+});
 </script>
 </body>
 </html>
